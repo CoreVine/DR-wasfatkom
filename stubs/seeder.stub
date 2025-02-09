@@ -1,0 +1,25 @@
+<?php
+
+namespace {{ namespace }};
+
+/*
+
+Done by Nofalseo Software Services
+nofalseo.com \ info@nofalseo.com
+
+*/
+
+
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
+
+class {{ class }} extends Seeder
+{
+    /**
+     * Run the database seeds.
+     */
+    public function run(): void
+    {
+        //
+    }
+}

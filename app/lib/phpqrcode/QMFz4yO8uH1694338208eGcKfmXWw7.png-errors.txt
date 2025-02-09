@@ -1,0 +1,1 @@
+2023-09-10 09:30:08: Trying to access array offset on value of type int

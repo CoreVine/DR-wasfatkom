@@ -1,0 +1,18 @@
+<?php
+
+/*
+
+Done by Nofalseo Software Services
+nofalseo.com \ info@nofalseo.com
+
+*/
+
+
+namespace {{ namespace }};
+
+use Illuminate\Database\Eloquent\Relations\Pivot;
+
+class {{ class }} extends Pivot
+{
+    //
+}

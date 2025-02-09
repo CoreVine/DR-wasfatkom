@@ -1,0 +1,16 @@
+<?php
+
+namespace {{ namespace }};
+
+/*
+
+Done by Nofalseo Software Services
+nofalseo.com \ info@nofalseo.com
+
+*/
+
+
+class {{ class }}
+{
+    //
+}
