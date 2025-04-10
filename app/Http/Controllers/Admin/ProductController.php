@@ -9,7 +9,10 @@ nofalseo.com \ info@nofalseo.com
 
 */
 
-
+use App\Exports\ProductsExport;
+use App\Imports\ProductsImport;
+use App\Models\ProductTranslate;
+use Maatwebsite\Excel\Facades\Excel;
 use Throwable;
 use App\Models\Product;
 use App\Models\Category;
@@ -31,342 +34,429 @@ use Illuminate\Http\Response;
 
 class ProductController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('permission:show_product')->only(['index', 'export']);
-        $this->middleware('permission:create_product')->only(['create', 'store']);
-        $this->middleware('permission:edit_product')->only(['edit', 'update' , 'active_inactive']);
-        $this->middleware('permission:delete_product')->only('destroy');
+  public function __construct()
+  {
+    $this->middleware('permission:show_product')->only(['index', 'export']);
+    $this->middleware('permission:create_product')->only(['create', 'store']);
+    $this->middleware('permission:edit_product')->only(['edit', 'update', 'active_inactive']);
+    $this->middleware('permission:delete_product')->only('destroy');
+  }
+
+  public function index(Request $request)
+  {
+    $request_filter = "?";
+    $index = 0;
+    foreach ($request->query() as $key => $value) {
+      if ($index == 0) {
+        $request_filter .= $key . "=" . $value;
+      } else {
+        $request_filter .= "&" . $key . "=" . $value;
+      }
+
+      $index++;
     }
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(Request $request)
-    {
-        $request_filter ="?";
-        $index=0;
-       foreach($request->query() as $key=>$value){
-        if($index == 0){
-            $request_filter.=$key."=".$value;
-        }else{
-            $request_filter.="&".$key."=".$value;
-
-        }
-
-        $index++;
-       }
-        $data = Product::with(['category', 'sub_category', 'supplier']);
+    $data = Product::with(['category', 'sub_category', 'supplier']);
 
 
-        $data = $this->filter($data);
+    $data = $this->filter($data);
 
 
-        $products = Product::select("id", "qty", "sale_qty", "remain_qty")->get();
-        $categories = Category::select("id")->get();
-        $suppliers = Supplier::select("id", 'name')->get();
+    $products = Product::select("id", "qty", "sale_qty", "remain_qty")->get();
+    $categories = Category::select("id")->get();
+    $suppliers = Supplier::select("id", 'name')->get();
 
-        $sub_categories = [];
-        if (request('category_id')) {
-            $sub_categories = SubCategory::select("id")->where('category_id',  request('category_id'))->get();
-        }
-
-
-
-        $supplier_name = Supplier::where('id', request('supplier_id'))->first()?->name;
-        $product_name = Product::where('id', request('product_id'))->first()?->name;
-        $category_name = Category::where('id', request('category_id'))->first()?->name;
-        $sub_category_name = SubCategory::where('id', request('sub_category_id'))->first()?->name;
-
-
-         $data = $data->paginate(config('app.paginate_number'));
-         $favorites = Favorite::where('doctor_id' , auth()->id())->with('product')->pluck("product_id")->toArray();
-        return view('admin.products.index', compact('request_filter','data', 'favorites', 'products', 'categories', 'sub_categories', 'product_name', 'category_name', 'sub_category_name', 'suppliers', 'supplier_name'));
+    $sub_categories = [];
+    if (request('category_id')) {
+      $sub_categories = SubCategory::select("id")->where('category_id', request('category_id'))->get();
     }
 
+    $supplier_name = Supplier::where('id', request('supplier_id'))->first()?->name;
+    $product_name = Product::where('id', request('product_id'))->first()?->name;
+    $category_name = Category::where('id', request('category_id'))->first()?->name;
+    $sub_category_name = SubCategory::where('id', request('sub_category_id'))->first()?->name;
 
-    public function export()
-    {
-        $data = Product::orderBy('id', 'desc');
-        $data = $this->filter($data);
+    $data = $data->paginate(config('app.paginate_number'));
+    $favorites = Favorite::where('doctor_id', auth()->id())->with('product')->pluck("product_id")->toArray();
 
-        $data = $data->get();
+    return view('admin.products.index', compact('request_filter', 'data', 'favorites', 'products', 'categories', 'sub_categories', 'product_name', 'category_name', 'sub_category_name', 'suppliers', 'supplier_name'));
+  }
 
-        $export_data = [];
+  public function trashed(Request $request)
+  {
+    $request_filter = "?";
+    $index = 0;
 
-        foreach ($data as $item) {
-            $export_data[] = [
-                'id' => $item->id,
-                __("messages_301.Product name") => $item->name,
-                __("messages_301.Code") => $item->code,
-                __("messages_303.barcode") => $item->barcode,
-                __('messages_303.category name') =>  $item->category->name,
-                __("messages_301.Sub category") =>  $item->sub_category?->name,
-                __("messages_301.Supplier") =>  $item->supplier?->name,
-                __("messages.Qty") => $item->qty,
-                __("messages_301.Qty sale") => $item->sale_qty,
-                __("messages_301.Qty remain") => $item->remain_qty,
-                __("messages_301.Expire date") => $item->created_at_format,
-                __("messages.Status") => $item->is_active,
-                __("messages.Favorite") => $item->favorite ? 1 : 0,
+    foreach ($request->query() as $key => $value) {
+      if ($index == 0) {
+        $request_filter .= $key . "=" . $value;
+      } else {
+        $request_filter .= "&" . $key . "=" . $value;
+      }
 
-                // Add other fields you want to include
-            ];
-        }
-        return (new FastExcel(collect($export_data)))->download('Products.xlsx');
+      $index++;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        $languages = Language::active()->orderDefaultActive()->get();
-        $categories = Category::active()->get();
-        $suppliers = Supplier::select('id', 'name')->get();
+    $data = Product::with(['category', 'sub_category', 'supplier'])->onlyTrashed();
+    $data = $this->filter($data);
 
-        return view('admin.products.create', compact('languages', 'categories', 'suppliers'));
+    $products = Product::select("id", "qty", "sale_qty", "remain_qty")->get();
+    $categories = Category::select("id")->get();
+    $suppliers = Supplier::select("id", 'name')->get();
+
+    $sub_categories = [];
+
+    if (request('category_id')) {
+      $sub_categories = SubCategory::select("id")->where('category_id', request('category_id'))->get();
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(ProductRequest $request)
-    {
-        //$
-        DB::beginTransaction();
+    $supplier_name = Supplier::where('id', request('supplier_id'))->first()?->name;
+    $product_name = Product::where('id', request('product_id'))->first()?->name;
+    $category_name = Category::where('id', request('category_id'))->first()?->name;
+    $sub_category_name = SubCategory::where('id', request('sub_category_id'))->first()?->name;
 
-        try {
-            $data = $request->validated();
-            if ($request->hasFile('image')) {
-                $image = HelperFile::upload($request->file('image'), '/products/images');
-                $data['image'] = $image['path'];
-            }
-            $data['remain_qty'] = $data['qty'];
+    $data = $data->paginate(config('app.paginate_number'));
+    $favorites = Favorite::where('doctor_id', auth()->id())->with('product')->pluck("product_id")->toArray();
 
-            if($data['sub_category_id']){
-                $check = SubCategory::where('id', $data['sub_category_id'])->where('category_id', $data['category_id'])->first();
+    return view('admin.products.trashed', compact('request_filter', 'data', 'favorites', 'products', 'categories', 'sub_categories', 'product_name', 'category_name', 'sub_category_name', 'suppliers', 'supplier_name'));
+  }
 
-                if (!$check) {
-                    Alert::toast(__("messages_301.This sub category is not belongs to this category"), "error");
-                    return back();
-                }
-            }
+  /* public function export()
+  {
+    $data = Product::orderBy('id', 'desc');
+    $data = $this->filter($data);
 
+    $data = $data->get();
 
+    $export_data = [];
 
-            $products = Product::create($data);
+    foreach ($data as $item) {
+      $export_data[] = [
+        'id' => $item->id,
+        __("messages_301.Product name") => $item->name,
+        __("messages_301.Code") => $item->code,
+        __("messages_303.barcode") => $item->barcode,
+        __('messages_303.category name') =>  $item->category->name,
+        __("messages_301.Sub category") =>  $item->sub_category?->name,
+        __("messages_301.Supplier") =>  $item->supplier?->name,
+        __("messages.Qty") => $item->qty,
+        __("messages_301.Qty sale") => $item->sale_qty,
+        __("messages_301.Qty remain") => $item->remain_qty,
+        __("messages_301.Expire date") => $item->created_at_format,
+        __("messages.Status") => $item->is_active,
+        __("messages.Favorite") => $item->favorite ? 1 : 0,
 
-            // HelperFile::generate_barcode($products->id);
+        // Add other fields you want to include
+      ];
+    }
+    return (new FastExcel(collect($export_data)))->download('Products.xlsx');
+  } */
 
+  public function export(Request $request)
+  {
+    return Excel::download(new ProductsExport($request), 'products.xlsx');
+  }
 
-            HelperTranslate::set_translate($request, Product::class, $products->id);
-            DB::commit();
+  public function import(Request $request)
+  {
+    $request->validate([
+      'file.*' => 'required|mimes:xlsx,xls,csv',
+    ]);
 
-            Alert::toast(__("messages.done successfully"), "success");
+    Excel::import(new ProductsImport, $request->file('file'));
+    Alert::toast(__("messages.done successfully"), "success");
+    return back();
+  }
 
-            return back();
-        } catch (Throwable $e) {
+  public function create()
+  {
+    $languages = Language::active()->orderDefaultActive()->get();
+    $categories = Category::active()->get();
+    $suppliers = Supplier::select('id', 'name')->get();
 
-            DB::rollBack();
+    return view('admin.products.create', compact('languages', 'categories', 'suppliers'));
+  }
 
-            HelperApp::set_log_catch("Store product", $e->getMessage());
-
-            Alert::toast(__("messages.An error occurred in data entry"), "error");
-            return back();
-        }
+  public function store(ProductRequest $request)
+  {
+    $data = $request->validated();
+    if ($request->hasFile('image')) {
+      $image = HelperFile::upload($request->file('image'), '/products/images');
+      $data['image'] = $image['path'];
     }
 
-    public function active_inactive($id)
-    {
-        $item = Product::findOrFail($id);
-        $item->is_active = !$item->is_active;
-        $item->save();
+    $data['remain_qty'] = $data['qty'];
+    $tax = $data['tax'];
 
-        Alert::toast(__("messages.done successfully"), "success");
+    $price_before_tax = $data['price'];
+    $tax_value = ($tax / 100) * $price_before_tax;
+    $price = $price_before_tax + $tax_value;
+
+    $data['price'] = $price;
+    $data['price_before_tax'] = $price_before_tax;
+
+    if ($data['sub_category_id']) {
+      $check = SubCategory::where('id', $data['sub_category_id'])->where('category_id', $data['category_id'])->first();
+
+      if (!$check) {
+        Alert::toast(__("messages_301.This sub category is not belongs to this category"), "error");
         return back();
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        $item = Product::findOrFail($id);
-        $languages = Language::active()->orderDefaultActive()->get();
-        $categories = Category::active()->get();
-        $suppliers = Supplier::select('id', 'name')->get();
-        $sub_categories = SubCategory::active()->get();
-
-        return view('admin.products.edit', compact('languages', 'categories', 'item', 'sub_categories', 'suppliers'));
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(ProductRequest $request, string $id)
-    {
-        DB::beginTransaction();
-
-        try {
-            $data = $request->validated();
-            $item = Product::findOrFail($id);
-            $old_image = $item->image;
-            $old_barcode = $item->barcode;
-            if ($request->hasFile('image')) {
-                HelperFile::delete($old_image);
-                $image = HelperFile::upload($request->file('image'), '/products/images');
-                $data['image'] = $image['path'];
-            }
-
-
-
-            if ($item->sale_qty != 0) {
-                $old_qty = $item->qty;
-                $new_qty = $data['qty'];
-                $dif_qty = $new_qty - $old_qty;
-                $data['remain_qty'] = $item->remain_qty + $dif_qty;
-            } else
-                $data['remain_qty'] = $data['qty'];
-
-
-
-            if($request->sub_category_id){
-
-                $check = SubCategory::where('id', $data['sub_category_id'])->where('category_id', $data['category_id'])->first();
-
-                if (!$check) {
-                    Alert::toast(__("messages_301.This sub category is not belongs to this category"), "error");
-                    return back();
-                }
-
-            }
-
-
-
-            $item->update($data);
-            HelperTranslate::set_translate($request, Product::class, $item->id);
-            DB::commit();
-            Alert::toast(__("messages.done successfully"), "success");
-            return back();
-        } catch (Throwable $e) {
-
-            DB::rollBack();
-
-            HelperApp::set_log_catch("update products", $e->getMessage());
-
-            Alert::toast(__("messages.An error occurred in data entry"), "error");
-            return back();
-        }
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        $products = Product::findOrFail($id);
-        $products->delete();
-        HelperFile::delete($products->image);
-        Alert::toast(__("messages.done successfully"), "success");
-        return back();
-    }
-
-    public function get_sub_category()
-    {
-        $category = Category::where('id', request('category_id'))->active()->first();
-        $sub_categories = SubCategory::where('category_id', $category->id)->active()->get();
-
-        return view('admin.products.inc.sub_categories', compact('sub_categories'));
+      }
     }
 
 
-    public function filter($query)
-    {
-        $query = $query->when(request('product_id'), function ($q) {
-            $q->where('id', request('product_id'));
-        }) ->when(request('key_words'), function ($q) {
-            $key_words = request('key_words');
-            $q->whereHas('all_translate', function ($subQuery) use ($key_words) {
-                $subQuery->where('name', 'like', "%".$key_words."%");
-            })->orWhereHas("category" ,  function($q) use ($key_words){
-                $q->whereHas('all_translate', function ($subQuery) use ($key_words) {
-                    $subQuery->where('name', 'like', "%".$key_words."%");
-                });
-            })->orWhereHas("supplier" ,  function($subQuery) use ($key_words){
+    $products = Product::create($data);
 
-                $subQuery->where('name', 'like', "%".$key_words."%");
+    // HelperFile::generate_barcode($products->id);
 
-            });
-        })
-            ->when(request('category_id'), function ($q) {
-                $q->where('category_id', request('category_id'));
-            })
-            ->when(request('supplier_id'), function ($q) {
-                $q->where('supplier_id', request('supplier_id'));
-            })
-            ->when(request('category_id') && request('sub_category_id'), function ($q) {
-                $q->where('category_id', request('category_id'))->where('sub_category_id', request('sub_category_id'));
-            })
-            ->when(request('qty_low'), function ($q) {
-                $q->where('qty', "<=", request('qty_low'));
-            })
-            ->when(request('qty_high'), function ($q) {
-                $q->where('qty', ">=", request('qty_high'));
-            })
-            ->when(request('sale_qty_low'), function ($q) {
-                $q->where('sale_qty', "<=", request('sale_qty_low'));
-            })
-            ->when(request('sale_qty_high'), function ($q) {
-                $q->where('sale_qty', ">=", request('sale_qty_high'));
-            })
-            ->when(request('remain_qty_low'), function ($q) {
-                $q->where('remain_qty', "<=", request('remain_qty_low'));
-            })
-            ->when(request('remain_qty_high'), function ($q) {
-                $q->where('remain_qty', ">=", request('remain_qty_high'));
-            })
-            ->when(request('from_date'), function ($q) {
-                $q->where('expire_date', ">=", request('from_date'));
-            })
-            ->when(request('to_date'), function ($q) {
-                $q->where('expire_date', "<=", request('to_date'));
-            });
 
-        return $query;
+    HelperTranslate::set_translate($request, Product::class, $products->id);
+    DB::commit();
+
+    Alert::toast(__("messages.done successfully"), "success");
+
+    return back();
+  }
+
+  public function active_inactive($id)
+  {
+    $item = Product::findOrFail($id);
+    $item->is_active = !$item->is_active;
+    $item->save();
+
+    Alert::toast(__("messages.done successfully"), "success");
+    return back();
+  }
+
+  public function restore_all()
+  {
+    Product::onlyTrashed()->restore();
+    Alert::toast(__("messages.done successfully"), "success");
+    return back();
+  }
+
+  public function delete_all()
+  {
+    Product::query()->delete();
+    Alert::toast(__("messages.done successfully"), "success");
+    return back();
+  }
+
+  public function show(string $id) {}
+
+  public function edit(string $id)
+  {
+    $item = Product::findOrFail($id);
+    $languages = Language::active()->orderDefaultActive()->get();
+    $categories = Category::active()->get();
+    $suppliers = Supplier::select('id', 'name')->get();
+    $sub_categories = SubCategory::active()->get();
+
+    $ar = ProductTranslate::where([
+      'lang' => 'ar',
+      'product_id' => $id
+    ])->first();
+
+    $en = ProductTranslate::where([
+      'lang' => 'en',
+      'product_id' => $id
+    ])->first();
+
+    $translations = ProductTranslate::where([
+      'product_id' => $id
+    ])->get();
+
+    return view('admin.products.edit', compact('translations', 'en', 'ar', 'languages', 'categories', 'item', 'sub_categories', 'suppliers'));
+  }
+
+  public function update(ProductRequest $request, string $id)
+  {
+    $data = $request->validated();
+    $item = Product::findOrFail($id);
+    $old_image = $item->image;
+    $old_barcode = $item->barcode;
+
+    global $image_url;
+    $image_url = $item->image;
+
+    $tax = $data['tax'];
+
+    $price_before_tax = $data['price'];
+    $tax_value = ($tax / 100) * $price_before_tax;
+    $price = $price_before_tax + $tax_value;
+
+    $data['price'] = $price;
+    $data['price_before_tax'] = $price_before_tax;
+
+    if ($request->hasFile('image')) {
+      HelperFile::delete($old_image);
+      $image = HelperFile::upload($request->file('image'), '/products/images');
+      $data['image'] = $image['path'];
+      $image_url = $data['path'];
     }
-    public function ajax_add_or_remove_favorite()
-    {
-        $product = Product::findOrFail(request("product_id"));
-        $is_favorite = Favorite::where("doctor_id", auth()->id())->where("product_id",  request('product_id'))->first();
-        $product_res = null;
-        if (!$is_favorite) {
-            $message = __("messages.The item has been successfully added to your favorites");
 
-            $product_res = $product;
-            Favorite::create([
-                "product_id" => $product->id,
-                "doctor_id" => auth()->id(),
-            ]);
-        } else {
-            $message = __("messages.The item has been successfully removed from favorites");
-
-            $is_favorite->delete();
-        }
-
-        return ResponseHelper::sendResponseSuccess(["product" => $product_res],  Response::HTTP_OK, $message);
+    if ($item->sale_qty != 0) {
+      $old_qty = $item->qty;
+      $new_qty = $data['qty'];
+      $dif_qty = $new_qty - $old_qty;
+      $data['remain_qty'] = $item->remain_qty + $dif_qty;
+    } else {
+      $data['remain_qty'] = $data['qty'];
     }
 
-    public function get_sub_category_filter()
-    {
-        $sub_categories = SubCategory::where('category_id', request('category_id'))->get();
 
-        return view('admin.products.inc.sub_categories', compact('sub_categories'));
+    $item->update([
+      'category_id' => $data['category_id'],
+      'supplier_id' => $data['supplier_id'],
+      'image' => $image_url,
+      'barcode' => $data['barcode'],
+      'qty' => $data['qty'],
+      'code' => $data['code'],
+      'remain_qty' => $data['remain_qty'],
+      'price_before_tax' => $price_before_tax,
+      'tax' => $tax,
+      'price' => $price,
+      'sub_category_id' => $request->input('sub_category_id') ?? null,
+    ]);
+
+    $ar = ProductTranslate::where([
+      'product_id' => $id,
+      'lang' => 'ar'
+    ])->first();
+
+    $en = ProductTranslate::where([
+      'product_id' => $id,
+      'lang' => 'en'
+    ])->first();
+
+    $ar->update([
+      'name' => $request->name_ar,
+      'description' => $request->description_ar,
+    ]);
+
+    $en->update([
+      'name' => $request->name_en,
+      'description' => $request->description_en,
+    ]);
+
+    //      HelperTranslate::set_translate($request, Product::class, $item->id);
+    Alert::toast(__("messages.done successfully"), "success");
+    return back();
+  }
+
+  public function destroy(string $id)
+  {
+    $products = Product::findOrFail($id);
+    $products->delete();
+    //HelperFile::delete($products->image);
+    Alert::toast(__("messages.done successfully"), "success");
+    return back();
+  }
+
+  public function force_delete(string $id)
+  {
+    $products = Product::findOrFail($id);
+    $products->forceDelete();
+    HelperFile::delete($products->image);
+    Alert::toast(__("messages.done successfully"), "success");
+    return back();
+  }
+
+  public function restore(string $id)
+  {
+    $products = Product::withTrashed()->findOrFail($id);
+    $products->restore();
+    Alert::toast(__("messages.done successfully"), "success");
+    return back();
+  }
+
+  public function get_sub_category()
+  {
+    $category = Category::where('id', request('category_id'))->active()->first();
+    $sub_categories = SubCategory::where('category_id', $category->id)->active()->get();
+
+    return view('admin.products.inc.sub_categories', compact('sub_categories'));
+  }
+
+  public function filter($query)
+  {
+    $query = $query->when(request('product_id'), function ($q) {
+      $q->where('id', request('product_id'));
+    })->when(request('key_words'), function ($q) {
+      $key_words = request('key_words');
+      $q->whereHas('all_translate', function ($subQuery) use ($key_words) {
+        $subQuery->where('name', 'like', "%" . $key_words . "%");
+      })->orWhereHas("category", function ($q) use ($key_words) {
+        $q->whereHas('all_translate', function ($subQuery) use ($key_words) {
+          $subQuery->where('name', 'like', "%" . $key_words . "%");
+        });
+      })->orWhereHas("supplier", function ($subQuery) use ($key_words) {
+
+        $subQuery->where('name', 'like', "%" . $key_words . "%");
+      });
+    })
+      ->when(request('category_id'), function ($q) {
+        $q->where('category_id', request('category_id'));
+      })
+      ->when(request('supplier_id'), function ($q) {
+        $q->where('supplier_id', request('supplier_id'));
+      })
+      ->when(request('category_id') && request('sub_category_id'), function ($q) {
+        $q->where('category_id', request('category_id'))->where('sub_category_id', request('sub_category_id'));
+      })
+      ->when(request('qty_low'), function ($q) {
+        $q->where('qty', "<=", request('qty_low'));
+      })
+      ->when(request('qty_high'), function ($q) {
+        $q->where('qty', ">=", request('qty_high'));
+      })
+      ->when(request('sale_qty_low'), function ($q) {
+        $q->where('sale_qty', "<=", request('sale_qty_low'));
+      })
+      ->when(request('sale_qty_high'), function ($q) {
+        $q->where('sale_qty', ">=", request('sale_qty_high'));
+      })
+      ->when(request('remain_qty_low'), function ($q) {
+        $q->where('remain_qty', "<=", request('remain_qty_low'));
+      })
+      ->when(request('remain_qty_high'), function ($q) {
+        $q->where('remain_qty', ">=", request('remain_qty_high'));
+      })
+      ->when(request('from_date'), function ($q) {
+        $q->where('expire_date', ">=", request('from_date'));
+      })
+      ->when(request('to_date'), function ($q) {
+        $q->where('expire_date', "<=", request('to_date'));
+      });
+
+    return $query;
+  }
+
+  public function ajax_add_or_remove_favorite()
+  {
+    $product = Product::findOrFail(request("product_id"));
+    $is_favorite = Favorite::where("doctor_id", auth()->id())->where("product_id", request('product_id'))->first();
+    $product_res = null;
+    if (!$is_favorite) {
+      $message = __("messages.The item has been successfully added to your favorites");
+
+      $product_res = $product;
+      Favorite::create([
+        "product_id" => $product->id,
+        "doctor_id" => auth()->id(),
+      ]);
+    } else {
+      $message = __("messages.The item has been successfully removed from favorites");
+
+      $is_favorite->delete();
     }
+
+    return ResponseHelper::sendResponseSuccess(["product" => $product_res], Response::HTTP_OK, $message);
+  }
+
+  public function get_sub_category_filter()
+  {
+    $sub_categories = SubCategory::where('category_id', request('category_id'))->get();
+
+    return view('admin.products.inc.sub_categories', compact('sub_categories'));
+  }
 }

@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
+
 class HelperApp
 {
     public static function set_log_catch($fun_name, $message)
@@ -82,37 +83,31 @@ class HelperApp
     public static function get_color_status($status)
     {
         if ($status == OrderStatusEnum::Draft->value) {
-
             return "warning";
         } elseif ($status == OrderStatusEnum::Review->value) {
-
-            return "info";
+            return "warning";
         } elseif ($status == OrderStatusEnum::Done->value) {
-
             return "primary";
-        } elseif ($status == OrderStatusEnum::Paid->value ) {
-
+        } elseif ($status == OrderStatusEnum::Paid->value) {
             return "secondary";
         } elseif ($status ==   OrderStatusEnum::Send->value) {
-
             return "success";
-        }  elseif ($status == OrderStatusEnum::Cancel->value) {
-
+        } elseif ($status == OrderStatusEnum::Cancel->value) {
             return "danger";
-        }elseif ($status == OrderStatusEnum::UnderDelivery->value) {
-
+        } elseif ($status == OrderStatusEnum::UnderDelivery->value) {
             return "dark";
         }
     }
 
 
-    public static function calac_commission($invoice){
+    public static function calac_commission($invoice)
+    {
         $total_products_not_commission = 0;
 
-        foreach($invoice->invoice_items as $item){
+        foreach ($invoice->invoice_items as $item) {
 
-            if(!$item->product->category->is_commission){
-                $total_products_not_commission+= $item->total;
+            if (!$item->product->category->is_commission) {
+                $total_products_not_commission += $item->total;
             }
         }
 
@@ -124,11 +119,11 @@ class HelperApp
 
 
         // calc tax
-        $tax =15/100;
+        $tax = 15 / 100;
         $total_tax =   $invoice_total   * $tax;
 
 
-        $invoice_total =  $invoice_total -  $total_tax ;
+        $invoice_total =  $invoice_total -  $total_tax;
 
 
 
@@ -141,32 +136,33 @@ class HelperApp
     }
 
 
-    public static function make_qr_code($invoice_id){
+    public static function make_qr_code($invoice_id)
+    {
         include('../app/lib/phpqrcode/qrlib.php');
 
-        $invoice = Invoice::where("id" , $invoice_id)->first();
+        $invoice = Invoice::where("id", $invoice_id)->first();
 
 
 
 
 
         $text = "شركة الندى الطبية" . "\n";
-        $text .= "الرقم الضريبى : "."310100358600003". "\n";
-        $text .= " التاريخ : ". Carbon::parse($invoice->create_at)->format("Y-m-d"). "\n";
-        $text .= " المبلغ قبل الضريبة : ".$invoice->total - $invoice->tax_value . "\n";
-        $text .= "  قيمة  الضريبة : ". $invoice->tax_value . "\n";
-        $text .= " المبلغ شامل الضريبة : ".$invoice->total . "\n";
+        $text .= "الرقم الضريبى : " . "310100358600003" . "\n";
+        $text .= " التاريخ : " . Carbon::parse($invoice->create_at)->format("Y-m-d") . "\n";
+        $text .= " المبلغ قبل الضريبة : " . $invoice->total - $invoice->tax_value . "\n";
+        $text .= "  قيمة  الضريبة : " . $invoice->tax_value . "\n";
+        $text .= " المبلغ شامل الضريبة : " . $invoice->total . "\n";
 
 
-        $random_name = $invoice_id.".png";
+        $random_name = $invoice_id . ".png";
 
         // make dir
-        $path = public_path().'/uploads/invoice-qr';
+        $path = public_path() . '/uploads/invoice-qr';
         File::isDirectory($path) or File::makeDirectory($path, 0777, true, true);
 
 
         // make qr code
-        \QRcode::png((string)$text , "uploads/invoice-qr/".$random_name);
+        \QRcode::png((string)$text, "uploads/invoice-qr/" . $random_name);
 
         return "invoice-qr/$random_name";
     }

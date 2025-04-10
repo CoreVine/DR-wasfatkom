@@ -10,13 +10,13 @@ return [
     'description' => 'الوصف',
     'name' => 'الاسم',
     'products' => 'المنتجات',
-    'image' => 'صورة المنتج ' ,
+    'image' => 'صورة المنتج ',
     'category name' => 'اسم القسم',
     'price' => 'سعر المنتج',
     'barcode' => 'الباركود',
     'packages' => 'باكجات',
     'add products' => 'اضافة منتجات',
-]
+    'Formulations' => 'التركبيات الطبية',
+    'formulations' => 'التركبيات الطبيه',
 
-?>
-
+];

@@ -117,7 +117,7 @@
                                 <strong style="display: block; margin-bottom: 5px;">Client : </strong>
                                <br />
                                name : {{ $item->client_name }} <br />
-                               Location : {{ $item->location }}  <br />
+                               Location : {{ $item->client_location }}  <br />
                                mobile : {{ $item->client_mobile }}
                             </p>
                         </td>

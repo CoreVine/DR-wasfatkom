@@ -16,51 +16,32 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class ProductRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
 
-    /*
-    public function authorize(): bool
-    {
-        return false;
-    }*/
-
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array|string>
-     */
-    public function rules(): array
-    {
-        $languages = Language::active()->get();
-        $rules = [];
-        $rules = [
-            "category_id" => ['required', 'integer', 'exists:categories,id,is_active,1'],
-            "supplier_id" => ['nullable', 'integer', 'exists:suppliers,id'],
-            "sub_category_id" => ['nullable', 'integer', 'exists:sub_categories,id,is_active,1'],
-            "image" => 'nullable|image|mimes:png,jpg,jpeg|max:5120',
-            "barcode" => 'nullable|string|max:255',
-            'price' => 'required|numeric|min:0',
-            'qty' => 'required|integer|min:1',
-            'code' => 'required|string|max:255',
-            'expire_date' => 'required|date|after_or_equal:today'
-        ];
-        foreach ($languages as $lang) {
-            if ($lang->is_default) {
-                $rules["name_$lang->code"] = "required|string|max:255";
-                $rules["description_$lang->code"] = "required|string|max:5000";
-            } else {
-                $rules["name_$lang->code"] = "nullable|string|max:255";
-                $rules["description_$lang->code"] = "nullable|string|max:5000";
-            }
-        }
-
-        if (in_array($this->method(), ['PUT', 'PATCH'])) {
-            $product = Product::findOrFail($this->product);
-            $rules['qty'] = 'required|integer|min:' . $product->sale_qty + $product->remain_qty;
-        }
-
-        return $rules;
+  public function rules(): array
+  {
+    $languages = Language::active()->get();
+    $rules = [];
+    $rules = [
+      "category_id" => ['required', 'integer', 'exists:categories,id,is_active,1'],
+      "supplier_id" => ['nullable', 'integer', 'exists:suppliers,id'],
+      "sub_category_id" => ['nullable', 'integer', 'exists:sub_categories,id,is_active,1'],
+      "image" => 'nullable|image|mimes:png,jpg,jpeg|max:5120',
+      "barcode" => 'nullable|string|max:255',
+      'price' => 'required|min:0|numeric|decimal:2|regex:/^\d+(\.\d{1,2})?$/',
+      'qty' => 'required|integer|min:1',
+      'tax' => 'required|min:0|max:100|numeric|decimal:2|regex:/^\d+(\.\d{1,2})?$/',
+      'code' => 'required|string|max:255',
+    ];
+    foreach ($languages as $lang) {
+      $rules["name_$lang->code"] = "required|string|max:255";
+      $rules["description_$lang->code"] = "required|string|max:5000";
     }
+
+    if (in_array($this->method(), ['PUT', 'PATCH'])) {
+      $product = Product::findOrFail($this->product);
+      $rules['qty'] = 'required|integer|min:' . $product->sale_qty + $product->remain_qty;
+    }
+
+    return $rules;
+  }
 }

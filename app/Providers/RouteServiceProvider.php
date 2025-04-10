@@ -34,12 +34,12 @@ class RouteServiceProvider extends ServiceProvider
                 ->group(base_path('routes/api.php'));
 
 
-            Route::middleware(['web' , 'auth' , 'check_lang'])
+            Route::middleware(['web', 'auth', 'check_lang', 'is_approved'])
                 ->prefix('admin')
                 ->as('admin.')
                 ->group(base_path('routes/admin.php'));
 
-            Route::middleware(['web' ,  'check_lang'])
+            Route::middleware(['web',  'check_lang'])
                 ->group(base_path('routes/web.php'));
         });
     }

@@ -9,67 +9,77 @@ nofalseo.com \ info@nofalseo.com
 
 */
 
-use Carbon\Carbon;
+
 use App\Enums\UserRoleEnum;
 use App\Models\Scopes\InvoiceScope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Invoice extends Model
 {
-    use HasFactory;
-    protected $guarded = ['id'];
+  use HasFactory;
 
-    protected $appends = ['created_at_format'];
+  protected $guarded = ['id'];
+  protected $appends = ['created_at_format'];
 
-    public function invoice_items()
-    {
-        return $this->hasMany(InvoiceItem::class);
-    }
+  public function invoice_items()
+  {
+    return $this->hasMany(InvoiceItem::class);
+  }
 
-    public function invoice_packages()
-    {
-        return $this->hasMany(InvoicePackage::class);
-    }
+  public function invoice_packages()
+  {
+    return $this->hasMany(InvoicePackage::class);
+  }
 
-    public function doctor()
-    {
+  public function invoice_formulations()
+  {
+    return $this->hasMany(InvoiceFormulation::class);
+  }
 
-        return $this->belongsTo(User::class, 'doctor_id');
-    }
+  public function doctor()
+  {
 
+    return $this->belongsTo(User::class, 'doctor_id');
+  }
 
+  public function getCreatedAtAttribute($value)
+  {
+    return Carbon::parse($value)->format('Y-m-d h:i A');
+  }
 
-    public function reviewer()
-    {
-        return $this->belongsTo(User::class, 'review_id');
-    }
+  public function getUpdatedAtAttribute($value)
+  {
+    return Carbon::parse($value)->format('Y-m-d h:i A');
+  }
 
-    public function getCreatedAtFormatAttribute()
-    {
-        return Carbon::parse($this->created_at)->format("Y-m-d h:i a");
-    }
+  public function reviewer()
+  {
+    return $this->belongsTo(User::class, 'review_id');
+  }
 
-
-    protected static function booted(): void
-    {
-        static::addGlobalScope(new InvoiceScope);
-
-
-        static::addGlobalScope('orderby', function (Builder $builder) {
-
-            $builder->orderBy("id"  ,"desc");
-
-        });
-
-    }
-
-
-    public function coupon(){
-        return $this->belongsTo(Coupon::class);
-    }
+  public function getCreatedAtFormatAttribute()
+  {
+    return Carbon::parse($this->created_at)->format("Y-m-d h:i a");
+  }
 
 
+  protected static function booted(): void
+  {
+    static::addGlobalScope(new InvoiceScope);
 
+
+    static::addGlobalScope('orderby', function (Builder $builder) {
+
+      $builder->orderBy("id", "desc");
+    });
+  }
+
+
+  public function coupon()
+  {
+    return $this->belongsTo(Coupon::class);
+  }
 }

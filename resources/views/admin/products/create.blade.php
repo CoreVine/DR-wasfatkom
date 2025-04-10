@@ -74,15 +74,15 @@
                                             </div>
                                         </div>
                                     @endforeach
-                                    <div class="row g-3">
+                                    <div class="row">
                                         <div class="col-md-6 p-2">
                                             <label
-                                                class="form-label d-block">{{ __('messages_303.category name') }}</label>
+                                                class="form-label d-block">{{ __('messages.Brand') }}</label>
                                             <select name="category_id"
                                                 class=" form-control select2 show-tick @error('category_id') is-invalid @enderror"
                                                 id="select_category_id" data-icon-base="ti" data-tick-icon="ti-check"
                                                 data-style="btn-default" data-live-search="true">
-                                                <option selected disabled>{{ __('messages_303.category name') }}</option>
+                                                <option selected disabled>{{ __('messages.Brand') }}</option>
                                                 @foreach ($categories as $category)
                                                     <option value="{{ $category->id }}" @selected(old('category_id') == $category->id)>
                                                         {{ $category->name }}</option>
@@ -94,12 +94,12 @@
                                         </div>
 
                                         <div class="col-md-6 p-2">
-                                            <label class="form-label d-block">{{ __('messages_301.Sub category') }}</label>
+                                            <label class="form-label d-block">{{ __('messages.category name') }}</label>
                                             <select name="sub_category_id"
                                                 class=" form-control select2 show-tick @error('sub_category_id') is-invalid @enderror"
                                                 id="select_sub_category_id" data-icon-base="ti" data-tick-icon="ti-check"
                                                 data-style="btn-default" data-live-search="true">
-                                                <option selected disabled>{{ __('messages_303.category name') }}</option>
+                                                <option selected disabled>{{ __('messages.category name') }}</option>
 
                                             </select>
                                             @error('sub_category_id')
@@ -120,17 +120,6 @@
                                                 @endforeach
                                             </select>
                                             @error('supplier_id')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-
-                                        <div class=" col-md-6 mt-4">
-                                            <label for="flatpickr-date"
-                                                class="form-label d-block">{{ __('messages_301.Expire date') }}</label>
-                                            <input type="date" value="{{ old('expire_date') }}"
-                                                class="form-control flatpickr-input active  @error('expire_date') is-invalid @enderror"
-                                                name="expire_date" id="flatpickr-date">
-                                            @error('expire_date')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>
@@ -186,8 +175,18 @@
                                             @enderror
                                         </div>
 
+                                      <div class="col-md-6 mb-3">
+                                        <label for="formFile"
+                                               class="form-label">{{ __('messages.Tax') }} %</label>
+                                        <input class="form-control @error('price') is-invalid @enderror"
+                                               type="number" id="formFile" name="tax"
+                                               value="{{ old('tax') }}">
+                                        @error('price')
+                                        <small class="text-danger">{{ $message }}</small>
+                                        @enderror
+                                      </div>
 
-                                        <div class="col-md-4 mb-3">
+                                        <div class="col-md-6 mb-3">
                                             <label for="formFile"
                                                 class="form-label">{{ __('messages_303.price') }}</label>
                                             <input class="form-control @error('price') is-invalid @enderror"

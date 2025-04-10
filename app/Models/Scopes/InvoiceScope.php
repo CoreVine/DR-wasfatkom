@@ -25,15 +25,15 @@ class InvoiceScope implements Scope
     {
         //
         if (request()->is('admin*') || request()->is('home')) {
-            // dd(req)
+
             $user_id = auth()->id();
             $user = User::where('id', $user_id)->first();
-            if ($user->type->value == UserRoleEnum::Admin->value && !$user->hasPermissionTo('admins')) {
-                $doctors_id = $user->is_all_doctor == 1 ? User::where('type', UserRoleEnum::Doctor->value)->pluck('id')->toArray() : AdminDoctor::where('admin_id', $user->id)->pluck('user_id')->toArray();
-                $builder->whereIn('doctor_id', $doctors_id);
-            } elseif ($user->type->value == UserRoleEnum::Doctor->value) {
-                $builder->where('doctor_id', $user->id);
-            }
+//            if ($user->type->value == UserRoleEnum::Admin->value && !$user->hasPermissionTo('admins')) {
+//                $doctors_id = $user->is_all_doctor == 1 ? User::where('type', UserRoleEnum::Doctor->value)->pluck('id')->toArray() : AdminDoctor::where('admin_id', $user->id)->pluck('user_id')->toArray();
+//                $builder->whereIn('doctor_id', $doctors_id);
+//            } elseif ($user->type->value == UserRoleEnum::Doctor->value) {
+//                $builder->where('doctor_id', $user->id);
+//            }
         }
     }
 }

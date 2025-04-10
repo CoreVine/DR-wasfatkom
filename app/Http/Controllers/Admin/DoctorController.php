@@ -26,7 +26,7 @@ class DoctorController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('permission:show_doctor')->only(['index', 'export' , 'sale' , 'show' , 'export_sales']);
+        $this->middleware('permission:show_doctor')->only(['index', 'export', 'sale', 'show', 'export_sales']);
         $this->middleware('permission:create_doctor')->only(['create', 'store']);
         $this->middleware('permission:edit_doctor')->only(['edit', 'update']);
         $this->middleware('permission:delete_doctor')->only('destroy');
@@ -85,8 +85,6 @@ class DoctorController extends Controller
             $image = HelperFile::upload($request->file('image'), 'doctors');
             $data['image'] = $image['path'];
         }
-
-
 
         $doctors = User::create($data);
 
@@ -176,51 +174,49 @@ class DoctorController extends Controller
 
 
         $xls_data = [];
-        foreach($data as $item){
-            $xls_data[]=[
-                __('messages.Reference')=>$item->invoice_num,
-                __('messages.Date created')=>Carbon::parse($item->created_at)->format('Y-m-d'),
-                __('messages.Total')=>$item->total,
-                __('messages.Doctors commission ( % )')=>$item->doctor_commission,
-                __('messages_301.Commission')=>$item->doctor_commission_value,
+        foreach ($data as $item) {
+            $xls_data[] = [
+                __('messages.Reference') => $item->invoice_num,
+                __('messages.Date created') => Carbon::parse($item->created_at)->format('Y-m-d'),
+                __('messages.Total') => $item->total,
+                __('messages.Doctors commission ( % )') => $item->doctor_commission,
+                __('messages_301.Commission') => $item->doctor_commission_value,
             ];
         };
 
         $xls_data = collect($xls_data);
 
-        $doctor_name = str_replace(" " , "-" , $doctor->name);
-        $name =   $doctor_name ."-doctor-sales";
-        if(request('year')){
-            $name.="-".request('year');
+        $doctor_name = str_replace(" ", "-", $doctor->name);
+        $name =   $doctor_name . "-doctor-sales";
+        if (request('year')) {
+            $name .= "-" . request('year');
         }
 
-        if(request('month')){
-            $name.="-".request('month');
+        if (request('month')) {
+            $name .= "-" . request('month');
         }
-        return (new FastExcel($xls_data))->download( $name.'.xlsx');
-
-
+        return (new FastExcel($xls_data))->download($name . '.xlsx');
     }
 
 
-    public function sale($id){
+    public function sale($id)
+    {
         $doctor = User::onlyDoctor()->where('type', UserRoleEnum::Doctor->value)->findOrfail($id);
 
-         $data = InvoiceItem::with(['invoice' , 'product'])->whereHas('invoice'  , function($q) use($id){
-            $q->whereIn('status', [OrderStatusEnum::Paid->value,  OrderStatusEnum::Send->value])->where("doctor_id"  , $id);
+        $data = InvoiceItem::with(['invoice', 'product'])->whereHas('invoice', function ($q) use ($id) {
+            $q->whereIn('status', [OrderStatusEnum::Paid->value,  OrderStatusEnum::Send->value])->where("doctor_id", $id);
         })->paginate(config('app.paginate_number'));
 
-        return view('admin.doctors.sale', compact('data' , 'doctor'));
-
-
+        return view('admin.doctors.sale', compact('data', 'doctor'));
     }
 
 
-    public function export_sale($id){
+    public function export_sale($id)
+    {
         $doctor = User::onlyDoctor()->where('type', UserRoleEnum::Doctor->value)->findOrfail($id);
 
-         $data = InvoiceItem::with(['invoice' , 'product'])->whereHas('invoice'  , function($q) use($id){
-            $q->whereIn('status', [OrderStatusEnum::Paid->value,  OrderStatusEnum::Send->value])->where("doctor_id"  , $id);
+        $data = InvoiceItem::with(['invoice', 'product'])->whereHas('invoice', function ($q) use ($id) {
+            $q->whereIn('status', [OrderStatusEnum::Paid->value,  OrderStatusEnum::Send->value])->where("doctor_id", $id);
         })->get();
 
 
@@ -229,36 +225,34 @@ class DoctorController extends Controller
 
 
 
-        foreach($data as $item){
-            $xls_data[]=[
-                __('messages_301.Product name')=>$item->product->name,
-                __('messages_301.Code')=> $item->product->code ,
-                __('messages_303.barcode')=>$item->product->barcode ,
-                __('messages.Qty') =>$item->qty,
-                __('messages.Price') => $item->price ,
+        foreach ($data as $item) {
+            $xls_data[] = [
+                __('messages_301.Product name') => $item->product->name,
+                __('messages_301.Code') => $item->product->code,
+                __('messages_303.barcode') => $item->product->barcode,
+                __('messages.Qty') => $item->qty,
+                __('messages.Price') => $item->price,
                 __('messages.Discount')  => $item->discount  . " % ",
-                __('messages.Total before discount') =>$item->total_befor_discount,
-                __('messages.Total')=>$item->total,
-                __('messages.Date created') =>$item->invoice->created_at_format,
+                __('messages.Total before discount') => $item->total_befor_discount,
+                __('messages.Total') => $item->total,
+                __('messages.Date created') => $item->invoice->created_at_format,
             ];
         };
 
         $xls_data = collect($xls_data);
 
-        $doctor_name = str_replace(" " , "-" , $doctor->name);
-        $name =   $doctor_name ."-doctor-sales";
-        if(request('year')){
-            $name.="-".request('year');
+        $doctor_name = str_replace(" ", "-", $doctor->name);
+        $name =   $doctor_name . "-doctor-sales";
+        if (request('year')) {
+            $name .= "-" . request('year');
         }
 
-        if(request('month')){
-            $name.="-".request('month');
+        if (request('month')) {
+            $name .= "-" . request('month');
         }
-        return (new FastExcel($xls_data))->download( $name.'.xlsx');
+        return (new FastExcel($xls_data))->download($name . '.xlsx');
 
         return view('admin.doctors.sale', compact('data'));
-
-
     }
 
     /**
@@ -278,12 +272,12 @@ class DoctorController extends Controller
         $item = User::onlyDoctor()->where('type', UserRoleEnum::Doctor)->findOrfail($id);
         $data = $request->validated();
 
-
         $data = [
             "name" => $request->name,
             "clinic_name" => $request->clinic_name,
             "email" => $request->email,
             "mobile" => $request->mobile,
+            "is_active" => $request->has('is_active') ? 1 : 0,
         ];
 
         if ($request->password) {
@@ -327,6 +321,15 @@ class DoctorController extends Controller
     {
         $item = User::onlyDoctor()->where('type', UserRoleEnum::Doctor)->findOrfail($id);
         $item->is_block = 0;
+        $item->save();
+        Alert::toast(__("messages.done successfully"), "success");
+        return back();
+    }
+
+    public function approve(string $id)
+    {
+        $item = User::onlyDoctor()->where('type', UserRoleEnum::Doctor)->findOrfail($id);
+        $item->is_active = 1;
         $item->save();
         Alert::toast(__("messages.done successfully"), "success");
         return back();

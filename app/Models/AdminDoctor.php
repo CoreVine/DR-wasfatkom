@@ -15,5 +15,5 @@ use Illuminate\Database\Eloquent\Model;
 class AdminDoctor extends Model
 {
     use HasFactory;
-    protected $guarded=['id'];
+    protected $guarded = ['id'];
 }

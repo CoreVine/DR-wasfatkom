@@ -12,6 +12,8 @@ nofalseo.com \ info@nofalseo.com
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use Carbon\Carbon;
+
 class Coupon extends Model
 {
     use HasFactory;
@@ -22,7 +24,16 @@ class Coupon extends Model
         return $q->where('is_active', 1);
     }
 
-    public function doctors(){
+    public function doctors()
+    {
         return $this->hasMany(CouponDoctor::class);
+    }
+    public function getCreatedAtAttribute($value)
+    {
+        return Carbon::parse($value)->format('d-m-Y h:i A');
+    }
+    public function getUpdatedAtAttribute($value)
+    {
+        return Carbon::parse($value)->format('d-m-Y h:i A');
     }
 }

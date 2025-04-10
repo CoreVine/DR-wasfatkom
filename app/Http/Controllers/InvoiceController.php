@@ -30,7 +30,6 @@ class InvoiceController extends Controller
 
         HelperApp::make_qr_code($item->id);
 
-
         $installments =  $this->get_installments($item);
         // return   $installments['available_payment_labels'];
         app()->setLocale("ar");

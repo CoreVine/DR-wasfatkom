@@ -1,7 +1,8 @@
 <!doctype html>
 
 <html lang="en" class="light-style layout-navbar-fixed layout-menu-fixed layout-compact" dir="rtl"
-    data-theme="theme-default" data-assets-path="{{ asset('') }}assets/" data-template="vertical-menu-template-no-customizer">
+    data-theme="theme-default" data-assets-path="{{ asset('') }}assets/"
+    data-template="vertical-menu-template-no-customizer">
 
 <head>
     @include('inc.head')
@@ -14,13 +15,12 @@
 </head>
 @yield('style')
 <style>
+    @media (max-width: 1199.98px) {
 
-@media (max-width: 1199.98px) {
-
-.layout-overlay {
-  z-index: 1030;
-}
-}
+        .layout-overlay {
+            z-index: 1030;
+        }
+    }
 
 
 
@@ -40,7 +40,7 @@
         z-index: 1043;
     }
 
-    i{
+    i {
         margin: 0px 5px 0px 5px
     }
 </style>
@@ -76,17 +76,17 @@
                             <div
                                 class="footer-container d-flex align-items-center justify-content-between py-2 flex-md-row flex-column">
                                 <div>
-                                    {{--  ©
+                                    {{-- ©
                                     <script>
                                         document.write(new Date().getFullYear());
                                     </script>
                                     , made with ❤️ by
                                     <a href="https://nofalseo.com/" target="_blank"
-                                        class="footer-link text-primary fw-medium">Nofal SEO</a>  --}}
+                                        class="footer-link text-primary fw-medium">Wasftkom</a> --}}
 
-                                         <a href="https://nofalseo.com/" target="_blank"
-                                            class="footer-link text-primary fw-medium">Nofal SEO</a>
-                                        Made with  by
+                                    <a href="https://nofalseo.com/" target="_blank"
+                                        class="footer-link text-primary fw-medium">Wasafatkom</a>
+                                    Made with by
 
                                 </div>
 
@@ -109,11 +109,11 @@
         <div class="drag-target"></div>
     </div>
     <!-- / Layout wrapper -->
-    <form id="form_action_delete" method="POST"  class="d-none">
+    <form id="form_action_delete" method="POST" class="d-none">
         @csrf
         @method('DELETE')
     </form>
-    <form id="form_action_post" method="POST"  class="d-none">
+    <form id="form_action_post" method="POST" class="d-none">
         @csrf
 
     </form>

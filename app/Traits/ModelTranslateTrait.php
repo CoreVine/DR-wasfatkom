@@ -48,12 +48,8 @@ trait ModelTranslateTrait
 
     public function first_translate()
     {
-
-
         return $this->hasOne($this->className . "Translate");
     }
-
-
 
     public function getNameAttribute()
     {
@@ -162,5 +158,4 @@ trait ModelTranslateTrait
             return $this->first_translate->meta_description ?? null;
         }
     }
-
 }

@@ -14,9 +14,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ProductTranslate extends Model
 {
-    use HasFactory ;
-    protected $guarded=['id'];
-
-
-
+    use HasFactory;
+    protected $guarded = ['id'];
+    protected $fillable = ['name', 'description', 'lang', 'product_id'];
 }

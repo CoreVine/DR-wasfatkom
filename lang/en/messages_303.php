@@ -1,5 +1,5 @@
-<?php 
- return array (
+<?php
+return array(
   'doctors' => 'doctors',
   'doctor data' => 'doctor data',
   'Upload new photo' => 'Upload new photo',
@@ -14,4 +14,7 @@
   'barcode' => 'barcode',
   'packages' => 'packages',
   'add products' => 'add products',
+  'Formulations' => 'Formulations',
+  'formulations' => 'Formulations',
+
 );

@@ -13,6 +13,7 @@ use App\Models\Product;
 use App\Traits\ModelTranslateTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Carbon\Carbon;
 
 class Category extends Model
 {
@@ -31,10 +32,17 @@ class Category extends Model
         return $this->hasMany(Category::class);
     }
 
-   
-
     public function scopeActive($q)
     {
         return $q->where('is_active', 1);
+    }
+
+    public function getCreatedAtAttribute($value)
+    {
+        return Carbon::parse($value)->format('d-m-Y h:i A');
+    }
+    public function getUpdatedAtAttribute($value)
+    {
+        return Carbon::parse($value)->format('d-m-Y h:i A');
     }
 }
