@@ -14,7 +14,7 @@ class InvoiceRequest extends FormRequest
       "doctor_id" => "required|integer|exists:users,id",
       "doctor_commission" => "required|numeric|max:50",
       "sub_total" => "required|numeric",
-      "discount" => "required|numeric|min:0|max:100|decimal:2|regex:/^\d+(\.\d{1,2})?$/",
+      "discount" => "required|numeric|min:0",
       "total" => "required|numeric",
       "client_name" => "required|string|max:255",
       "client_location" => "nullable|string|max:255",
@@ -23,7 +23,7 @@ class InvoiceRequest extends FormRequest
       "items" => "required|array",
       "items.*.price" => "required|numeric",
       "items.*.qty" => "required|integer",
-      "items.*.discount" => "nullable|numeric|min:0|max:100|decimal:2|regex:/^\d+(\.\d{1,2})?$/",
+      "items.*.discount" => "nullable|numeric|min:0",
       "items.*.total" => "required|numeric",
       "items.*.total_befor_discount" => "required|numeric",
       "items.*.the_use" => "nullable|string|max:100000",
@@ -39,7 +39,7 @@ class InvoiceRequest extends FormRequest
 
       "formulations.*.price" => "nullable|numeric",
       "formulations.*.qty" => "nullable|integer",
-      "formulations.*.discount" => "nullable|numeric|min:0|max:100|decimal:2|regex:/^\d+(\.\d{1,2})?$/",
+      "formulations.*.discount" => "nullable|numeric|min:0",
       "formulations.*.total" => "nullable|numeric",
       "formulations.*.formulation_id" => "required_with:formulations.*.price,formulations.*.formulation_id|nullable|exists:formulations,id",
     ];

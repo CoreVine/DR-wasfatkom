@@ -27,9 +27,9 @@ class ProductRequest extends FormRequest
       "sub_category_id" => ['nullable', 'integer', 'exists:sub_categories,id,is_active,1'],
       "image" => 'nullable|image|mimes:png,jpg,jpeg|max:5120',
       "barcode" => 'nullable|string|max:255',
-      'price' => 'required|min:0|numeric|decimal:2|regex:/^\d+(\.\d{1,2})?$/',
+      'price' => 'required|min:0|numeric',
       'qty' => 'required|integer|min:1',
-      'tax' => 'required|min:0|max:100|numeric|decimal:2|regex:/^\d+(\.\d{1,2})?$/',
+      'tax' => 'required|min:0|max:100|numeric',
       'code' => 'required|string|max:255',
     ];
     foreach ($languages as $lang) {

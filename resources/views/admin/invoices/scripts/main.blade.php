@@ -1,5 +1,4 @@
 <script>
-
   $(function() {
 
     $(document).on("change", ".product_select, .formulation_select, .package_select", function() {
@@ -42,9 +41,9 @@
         var qty = $(this).find(".qty").val();
         var discount = $(this).find(".discount").length ? $(this).find(".discount").val() : 0;
 
-        if (!qty) {
+        /* if (!qty) {
           $(this).find(".qty").val(1);
-        }
+        } */
 
         if (!discount) {
           $(this).find(".discount").val("0.00");
