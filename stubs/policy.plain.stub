@@ -1,0 +1,24 @@
+<?php
+
+namespace {{ namespace }};
+
+/*
+
+Done by Nofalseo Software Services
+nofalseo.com \ info@nofalseo.com
+
+*/
+
+
+use {{ namespacedUserModel }};
+
+class {{ class }}
+{
+    /**
+     * Create a new policy instance.
+     */
+    public function __construct()
+    {
+        //
+    }
+}

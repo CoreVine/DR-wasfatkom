@@ -1,0 +1,19 @@
+<?php
+
+namespace {{ namespace }};
+
+/*
+
+Done by Nofalseo Software Services
+nofalseo.com \ info@nofalseo.com
+
+*/
+
+
+use {{ rootNamespace }}Http\Controllers\Controller;
+use Illuminate\Http\Request;
+
+class {{ class }} extends Controller
+{
+    //
+}

@@ -1,0 +1,1 @@
+2023-09-10 09:18:58: imagepng(uploads/booking/5Q5ntCU4VQ1694337538zw0BvNflXZ.png): Failed to open stream: No such file or directory

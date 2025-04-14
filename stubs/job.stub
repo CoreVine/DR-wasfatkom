@@ -1,0 +1,34 @@
+<?php
+
+namespace {{ namespace }};
+
+/*
+
+Done by Nofalseo Software Services
+nofalseo.com \ info@nofalseo.com
+
+*/
+
+
+use Illuminate\Foundation\Bus\Dispatchable;
+
+class {{ class }}
+{
+    use Dispatchable;
+
+    /**
+     * Create a new job instance.
+     */
+    public function __construct()
+    {
+        //
+    }
+
+    /**
+     * Execute the job.
+     */
+    public function handle(): void
+    {
+        //
+    }
+}
