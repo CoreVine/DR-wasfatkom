@@ -529,7 +529,7 @@ class InvoiceController extends Controller
       'client_mobile' => $request->client_mobile,
       'coupon_id' => $request->coupon_id ?: null,
       'notes' => $request->notes,
-      'updated_at' => now()->addHours(2),
+
     ];
 
     $data['doctor_commission'] = auth()->user()->type->value == UserRoleEnum::Admin->value
