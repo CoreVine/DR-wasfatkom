@@ -358,8 +358,6 @@ class InvoiceController extends Controller
       'discount' => 0,
       'total' => 0,
       'payment_order_id' => time() . $invoice_num,
-      'created_at' => now()->addHours(2),
-      'updated_at' => now()->addHours(2),
     ];
 
     $data['doctor_commission'] = auth()->user()->type->value == UserRoleEnum::Admin->value
@@ -415,10 +413,10 @@ class InvoiceController extends Controller
     $invoice->update([
       'sub_total' => $sub_total,
       'total' => $final_total,
-      'discount' => $discount_overall,
+      'discount' => $discount_overall ?? 0,
       'coupon_percentage' => $couponPercentage ?? 0,
       'coupon_discount' => $couponValue ?? 0,
-      'items_discount' => $items_discount,
+      'items_discount' => $items_discount ?? 0,
       'overall_discount' => $overall_discount_value ?? 0,
       'overall_percentage' => $discount_overall ?? 0,
       'tax' => 0,
