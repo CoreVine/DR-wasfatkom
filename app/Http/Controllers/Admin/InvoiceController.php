@@ -306,14 +306,17 @@ class InvoiceController extends Controller
       ]
     )->select("id", "code", "count_use", 'from_date', 'to_date')->get();
 
+    $doctors = User::query();
+
     if ($user->type->value == UserRoleEnum::Admin->value && !$user->hasPermissionTo('admins')) {
       $doctor_ids = AdminDoctor::where('admin_id', $user->id)->pluck('user_id')->toArray();
-      $doctors = User::where('type', UserRoleEnum::Doctor->value)->whereIn('id', $doctor_ids)->get();
+      $doctors = $doctors->where('type', UserRoleEnum::Doctor->value)->whereIn('id', $doctor_ids)->get();
       if (!$doctors && $user->is_all_doctor == "0") {
         return abort(404);
       }
-    } else
-      $doctors = User::where('type', UserRoleEnum::Doctor->value)->select('id', 'name', 'clinic_name')->get();
+    } else {
+      $doctors = $doctors->where('type', UserRoleEnum::Doctor->value)->select('id', 'name', 'clinic_name')->get();
+    }
 
     $reviewers = User::when(!$user->hasPermissionTo("admins"), function ($q) {
       $q->where("id", auth()->id());
@@ -331,6 +334,8 @@ class InvoiceController extends Controller
 
   public function store(InvoiceRequest $request)
   {
+
+    DB::beginTransaction();
 
     if (!$request->packages && !$request->items) {
       return ResponseHelper::sendResponseError(null, Response::HTTP_BAD_REQUEST, __("messages_301.Please add at least product or package"));
@@ -425,10 +430,13 @@ class InvoiceController extends Controller
 
     $this->calc_tax($invoice->id);
 
-    DB::commit();
     $doctor_commission_value = HelperApp::calac_commission($invoice);
-    $invoice->doctor_commission_value = $doctor_commission_value;
-    $invoice->save();
+    /*     $invoice->save(); */
+    $invoice->update([
+      'doctor_commission_value' => $doctor_commission_value,
+    ]);
+
+    DB::commit();
 
     Alert::toast(__("messages.done successfully"), "success");
     return ResponseHelper::sendResponseSuccess(["url" => route('admin.invoices.create')]);
@@ -499,6 +507,7 @@ class InvoiceController extends Controller
 
   public function update(InvoiceRequest $request, string $id)
   {
+    DB::beginTransaction();
     if (!$request->packages && !$request->items) {
       return ResponseHelper::sendResponseError(
         null,
@@ -555,7 +564,7 @@ class InvoiceController extends Controller
     }
 
     // Process packages
-    if ($request->packages && count($request->packages)) {
+    if ($request->packages && count($request->packages) > 0) {
       $package_data = $this->get_package_data($request, $invoice->id);
       $total += $package_data['invoice_total'];
       $sub_total += $package_data['invoice_total'];
@@ -606,8 +615,9 @@ class InvoiceController extends Controller
 
     // Commission calculation
     $doctor_commission_value = HelperApp::calac_commission($invoice);
-    $invoice->doctor_commission_value = $doctor_commission_value;
-    $invoice->save();
+    $invoice->update([
+      'doctor_commission_value' => $doctor_commission_value,
+    ]);
 
     DB::commit();
 

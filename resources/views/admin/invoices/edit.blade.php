@@ -271,6 +271,10 @@
                           <input name="qty" value="{{ $package_item->qty }}" type="text"
                             class="form-control invoice-package-price mb-3 qty" placeholder="" />
                         </div>
+
+                        <input name="discount" value="0" type="hidden"
+                          class="form-control invoice-package-discount mb-3 qty" placeholder="" />
+
                         <div class="col-md-2 col-12">
                           <label class="my-2">{{ __('messages.Total') }}</label>
                           <input readonly value="{{ $package_item->total }}" name="total" type="text"

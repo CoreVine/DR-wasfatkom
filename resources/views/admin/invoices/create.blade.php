@@ -82,8 +82,7 @@
 
                 <div class="col-12 col-md-6 mt-2">
                   <label for="" class="form-label">{{ __('messages_303.doctors') }}</label>
-                  <select name="doctor_id" id="select2" class=" form-select form-control select2"
-                    data-allow-clear="true">
+                  <select name="doctor_id" class=" form-select form-control select2" data-allow-clear="true">
                     <option value="">----</option>
                     @foreach ($doctors as $doctor)
                     <option value="{{ $doctor->id }}" @selected(old('doctor_id')==$doctor->id)>
@@ -304,7 +303,7 @@
               <div class="source-item px-0">
                 <h3 class="mb-0 font-bold">{{ __('messages.Formulations') }}</h3>
                 <div class="mb-3" data-repeater-list="formulations">
-                  <div class="repeater-wrapper repeater-item pt-0 pt-md-4 " data-repeater-item>
+                  <div class="repeater-wrapper first-formulation repeater-item pt-0 pt-md-4 " data-repeater-item>
                     <div class="d-flex border rounded position-relative pe-0">
                       <div class="row w-100 p-3">
                         <h5 style="font-weight: 900;" class="change-formulation-m"

@@ -160,13 +160,22 @@ class ProductController extends Controller
 
   public function import(Request $request)
   {
-    $request->validate([
-      'file.*' => 'required|mimes:xlsx,xls,csv',
-    ]);
+    DB::beginTransaction();
+    try {
+      $request->validate([
+        'file.*' => 'required|mimes:xlsx,xls,csv',
+      ]);
 
-    Excel::import(new ProductsImport, $request->file('file'));
-    Alert::toast(__("messages.done successfully"), "success");
-    return back();
+      Excel::import(new ProductsImport, $request->file('file'));
+      Alert::toast(__("messages.done successfully"), "success");
+      DB::commit();
+      return back();
+    } catch (Throwable $error) {
+      DB::rollBack();
+      Log::error("Error in ProductController@import: " . $error->getMessage());
+      Alert::toast("Something went wrong!", "error");
+      return back()->withInput(); // to keep the user input
+    }
   }
 
   public function create()

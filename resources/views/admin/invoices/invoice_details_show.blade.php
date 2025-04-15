@@ -140,8 +140,8 @@
                             @foreach ($item->invoice_items as $item_data)
                             <tr>
                                 <td>{{ $item_data->product->name }}</td>
-                                <td>{{ $item_data->the_use }}</td>
-                                <td>{{ $item_data->barcode }}</td>
+                                <td>{{ $item_data->the_use ?? '----' }}</td>
+                                <td>{{ $item_data->product->barcode }}</td>
                                 <td>{{ $item_data->price }}</td>
                                 <td>{{ $item_data->qty }}</td>
                                 <td>{{ $item_data->total_befor_discount }}</td>
@@ -175,17 +175,17 @@
                         </div>
 
                         <div class="mb-1">
-                            {{ __('messages.Overall Percentage') }} : {{ $item->overall_percentage }}%
+                            {{ __('messages.Overall Percentage') }} : {{ $item->overall_percentage ?? 0 }}%
                         </div>
                         <div class="mb-1">
-                            {{ __('messages.Overall Value') }} : -{{ $item->overall_discount }} SAR
+                            {{ __('messages.Overall Value') }} : -{{ $item->overall_discount ?? 0 }} SAR
                         </div>
                         @if ($item->coupon)
                         <div class="mb-1">
                             {{ __('messages.Coupon') }} : {{ $item->coupon->code }}
                         </div>
                         <div class="mb-1">
-                            {{ __('messages.Discount code value') }}: {{ $item->coupon_discount }} SAR
+                            {{ __('messages.Discount code value') }}: -{{ $item->coupon_discount ?? 0 }} SAR
                         </div>
                         @endif
                         <div class="mb-1">

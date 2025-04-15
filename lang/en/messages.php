@@ -57,6 +57,7 @@ return array(
   'Total before tax' => 'Total before tax',
   'Overall Percentage' => 'Overall Percentage',
   'Overall Value' => 'Overall Value',
+  'Sub Total' => 'Sub Total',
   'Discount code value' => 'Discount code value',
   'Details' => 'Details',
   "notAvailable" => "Not Available",

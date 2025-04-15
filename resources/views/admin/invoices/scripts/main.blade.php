@@ -17,7 +17,7 @@
     function updatePackagesTitle() {
       $('.change-package-m').each(function(index) {
         var baseText = $(this).attr('text-show');
-        $(this).text(baseText + ' #' + index);
+        $(this).text(baseText + ' #' + (index + 1));
       });
     }
 

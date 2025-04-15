@@ -12,8 +12,8 @@ class ProductsImport implements ToModel, WithHeadingRow
   public function model(array $row)
   {
     $p = Product::create([
-      'price'            => $row['price'],
       'price_before_tax' => $row['price'],
+      'price'            => $row['price'] + (($row['tax'] / 100) * $row['price']),
       'barcode'          => $row['barcode'],
       'code'             => $row['code'],
       'qty'              => $row['qty'],

@@ -54,6 +54,7 @@ return [
   'Discount code value' => 'قيمة كود الخصم',
   'Overall Percentage' => 'نسبة الخصم الاجمالية',
   'Overall Value' => 'قيمة الخصم الاجمالية',
+  'Sub Total' => 'الاجمالى',
   "Actions" => "اجراءات",
   'Brands' => 'الماركات',
   "Blocked" => "محظور",

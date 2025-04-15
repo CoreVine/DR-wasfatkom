@@ -502,20 +502,26 @@
 @include('admin.invoices.scripts.add_and_remove_favorite')
 <script>
   $(document).ready(function() {
-      // Apply Column Changes
       $('#applyColumnsBtn').click(function() {
-        // Hide all dynamic columns
         $('.dynamic-column').hide();
 
-        // Show selected columns
         $('#columnSelect').val().forEach(function(column) {
           $(`.dynamic-column[data-column="${column}"]`).show();
         });
       });
 
-      // Initialize all columns as visible by default
       $('#columnSelect').val(['name', 'image', 'category', 'sub_category', 'favorite', 'supplier', 'qty', 'sale_qty', 'remain_qty', 'expire_date', 'status', 'actions']);
-      $('#applyColumnsBtn').click(); // Trigger the button click to apply default visibility
+      $('#applyColumnsBtn').click();
+      
+      $('.select2').select2();
+
+      $(".btn_remove_filter").click(function () {
+        var input_name = $(this).data('input_name')
+        $(`.${input_name}`).html(null)
+        $(`.${input_name}`).val(null)
+        $('#form_filter').submit()
+      })
     });
+
 </script>
 @endsection
