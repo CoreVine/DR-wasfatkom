@@ -127,7 +127,6 @@
                             <tr>
                                 <th>{{ __('messages.Product') }}</th>
                                 <th>{{ __('messages.The use') }}</th>
-                                <th>{{ __('messages.Barcode') }}</th>
                                 <th>{{ __('messages.Price') }}</th>
                                 <th>{{ __('messages.Qty') }}</th>
                                 <th>{{ __('messages.Total') }}</th>
@@ -140,8 +139,7 @@
                             @foreach ($item->invoice_items as $item_data)
                             <tr>
                                 <td>{{ $item_data->product->name }}</td>
-                                <td>{{ $item_data->the_use ?? '----' }}</td>
-                                <td>{{ $item_data->product->barcode }}</td>
+                                <td>{{ $item_data->the_use }}</td>
                                 <td>{{ $item_data->price }}</td>
                                 <td>{{ $item_data->qty }}</td>
                                 <td>{{ $item_data->total_befor_discount }}</td>
@@ -164,7 +162,6 @@
                             @endif
                         </tbody>
                     </table>
-
                 </div>
 
 
@@ -175,17 +172,14 @@
                         </div>
 
                         <div class="mb-1">
-                            {{ __('messages.Overall Percentage') }} : {{ $item->overall_percentage ?? 0 }}%
-                        </div>
-                        <div class="mb-1">
-                            {{ __('messages.Overall Value') }} : -{{ $item->overall_discount ?? 0 }} SAR
+                            {{ __('messages.Discount') }} : {{ $item->discount }}
                         </div>
                         @if ($item->coupon)
                         <div class="mb-1">
                             {{ __('messages.Coupon') }} : {{ $item->coupon->code }}
                         </div>
                         <div class="mb-1">
-                            {{ __('messages.Discount code value') }}: -{{ $item->coupon_discount ?? 0 }} SAR
+                            {{ __('messages.Discount code value') }} : {{ $item->coupon_value }}
                         </div>
                         @endif
                         <div class="mb-1">
@@ -209,7 +203,7 @@
                 <div class="row">
                     <div class="col-12 p-5">
                         {{ __('messages.Notes') }} : <br>
-                        {{ $item->notes }}
+                        {{ $item->notes ?? 'N/A' }}
                     </div>
                 </div>
 
@@ -227,6 +221,7 @@
                 </div>
                 @endif
                 @endcan
+
                 @if ($item->reviewer && $item->status == \App\Enums\OrderStatusEnum::Done->value)
                 <div class="d-flex justify-content-end mb-3">
                     <div class="col-10">
@@ -286,7 +281,9 @@
 
                 </div>
                 @endif
+
                 @else
+
                 @if ($item->status == "paid")
                 <div class="p-5">
                     <span class="bg bg-success p-2 rounded" style="color: #fff"> الفاتورة رقم
@@ -411,8 +408,6 @@
 
                 </div>
                 @endif
-
-
 
                 @endif
 

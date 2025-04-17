@@ -673,13 +673,14 @@ class InvoiceController extends Controller
       if (isset($item['package_id']) && $item['package_id']) {
         $package = Package::where('id', $item['package_id'])->select('price')->first();
         if (!$package) abort(404);
-        $total = $package->price * $item['qty'];
+        $qty = $item['qty'] == 0 ? 1 : $item['qty'];
+        $total = $package->price * ($qty == 0 ? 1 : $qty);
 
         $data[] = [
           'invoice_id' => $invoice,
           'package_id' => $item['package_id'],
           'price' => $package->price,
-          'qty' => $item['qty'] ?? 1,
+          'qty' => $qty,
           'total' => $total,
 
         ];
@@ -829,7 +830,7 @@ class InvoiceController extends Controller
   public function cancel_status(Request $request, $id)
   {
     $item = Invoice::findOrFail($id);
-    $item->$item->status = OrderStatusEnum::Cancel->value;
+    $item->status = OrderStatusEnum::Cancel->value;
     $item->save();
 
     Alert::toast(__("messages.done successfully"), "success");
