@@ -287,7 +287,7 @@
             $format = App\Http\Helpers\HelperSetting::get_value('time_format');
             $formatted_date = Carbon::parse($item->created_at)->format($format);
             @endphp
-            <td>{{ $formatted_date }}</td>
+            <td>{{ $item->created_at }}</td>
 
             <td>
               <div class="dropdown">
