@@ -30,18 +30,18 @@ class InvoiceRequest extends FormRequest
       "items.*.product_id" => "required|integer|exists:products,id,is_active,1",
 
       "packages" => "nullable|array",
-      "formulations" => "nullable|array",
+      /*       "formulations" => "nullable|array", */
 
       "packages.*.price" => "nullable|numeric",
       "packages.*.qty" => "nullable|integer",
       "packages.*.total" => "nullable|numeric",
       "packages.*.package_id" => "required_with:packages.*.price,packages.*.package_id|nullable|exists:packages,id",
 
-      "formulations.*.price" => "nullable|numeric",
+      /* "formulations.*.price" => "nullable|numeric",
       "formulations.*.qty" => "nullable|integer",
       "formulations.*.discount" => "nullable|numeric|min:0",
       "formulations.*.total" => "nullable|numeric",
-      "formulations.*.formulation_id" => "required_with:formulations.*.price,formulations.*.formulation_id|nullable|exists:formulations,id",
+      "formulations.*.formulation_id" => "required_with:formulations.*.price,formulations.*.formulation_id|nullable|exists:formulations,id", */
     ];
   }
 }

@@ -135,12 +135,12 @@
   @endcan
 
   {{-- @can('show_coupon') --}}
-  <li class="menu-item {{ request()->is('admin/formulations*') ? 'active' : '' }}">
+  {{-- <li class="menu-item {{ request()->is('admin/formulations*') ? 'active' : '' }}">
     <a href="{{ route('admin.formulations.index') }}" class="menu-link">
       <i class="menu-icon ti ti-medicine-syrup"></i>
       <div>{{ __('messages_301.Formulations') }}</div>
     </a>
-  </li>
+  </li> --}}
   {{-- @endcan --}}
 
   @can('admins')

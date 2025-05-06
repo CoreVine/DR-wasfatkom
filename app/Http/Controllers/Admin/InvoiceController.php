@@ -295,7 +295,7 @@ class InvoiceController extends Controller
     $user = User::findOrFail($user_id);
     $products = Product::with(["category", "sub_category"])->select("id", "price", 'category_id', 'sub_category_id', 'barcode')->get();
     $packages = Package::select("id", "price")->get();
-    $formulations = Formulation::select("id", "price")->get();
+    //$formulations = Formulation::select("id", "price")->get();
 
     $coupons = Coupon::where(
       [
@@ -329,7 +329,7 @@ class InvoiceController extends Controller
     $favorites_ids = $favorites->pluck('product_id')->toArray();
     $favorites_ids_str = implode(",", $favorites_ids);
 
-    return view("admin.invoices.create", compact('products', 'coupons', 'doctors', 'reviewers', 'formulations', 'favorites_ids_str', 'favorites', 'packages'));
+    return view("admin.invoices.create", compact('products', 'coupons', 'doctors', 'reviewers', 'favorites_ids_str', 'favorites', 'packages'));
   }
 
   public function store(InvoiceRequest $request)
@@ -392,14 +392,14 @@ class InvoiceController extends Controller
     }
 
     // Process formulations
-    if ($request->formulations && count($request->formulations) > 0) {
+    /*     if ($request->formulations && count($request->formulations) > 0) {
       $formulation_data = $this->get_formulation_data($request, $invoice->id);
       $total += $formulation_data['invoice_total'];
       $sub_total += $formulation_data['invoice_sub_total'];
       $total_discount += $formulation_data['invoice_total_discount'] ?? 0;
       $items_discount += $formulation_data['invoice_total_discount'] ?? 0;
       InvoiceFormulation::insert($formulation_data['data']);
-    }
+    } */
 
     // Calculate final discount
     $overall_discount_value = ($sub_total - $total_discount) * ($discount_overall / 100);
@@ -572,14 +572,14 @@ class InvoiceController extends Controller
     }
 
     // Process formulations
-    if ($request->formulations && count($request->formulations) > 0) {
+    /*     if ($request->formulations && count($request->formulations) > 0) {
       $formulation_data = $this->get_formulation_data($request, $invoice->id);
       $total += $formulation_data['invoice_total'];
       $sub_total += $formulation_data['invoice_sub_total'];
       $total_discount += $formulation_data['invoice_total_discount'] ?? 0;
       $items_discount += $formulation_data['invoice_total_discount'] ?? 0;
       InvoiceFormulation::insert($formulation_data['data']);
-    }
+    } */
 
     // Calculate discounts and totals
     $overall_discount_value = ($sub_total - $total_discount) * ($discount_overall / 100);
@@ -800,7 +800,7 @@ class InvoiceController extends Controller
   public function review(Request $request, $id)
   {
     $invoice = Invoice::whereNotNull("review_id")->whereNotIn("status", [OrderStatusEnum::Paid->value, OrderStatusEnum::Done->value])->findOrFail($id);
-    $invoice->status = OrderStatusEnum::Done->value;
+    $invoice->status = OrderStatusEnum::Review->value;
     $invoice->save();
 
     Alert::toast(__("messages.done successfully"), "success");

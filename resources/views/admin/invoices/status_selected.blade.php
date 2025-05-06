@@ -5,8 +5,7 @@
     </button>
     <ul class="dropdown-menu">
         @foreach (App\Enums\OrderStatusEnum::values() as $order_status_enum_val)
-        @if ($order_status_enum_val != "paid")
-        @if ($order_status_enum_val != "done")
+
         <li data-invoice_id="{{ $invoice_item_id }}" data-old_value="{{ $item->status }}"
             data-value="{{ $order_status_enum_val }}"
             class="{{ $invoice_item_status == $order_status_enum_val ? 'bg bg-primary' : '' }} change_status">
@@ -14,8 +13,7 @@
                 {{ __('messages.' . $order_status_enum_val) }}
             </a>
         </li>
-        @endif
-        @endif
+
         @endforeach
     </ul>
 </div>

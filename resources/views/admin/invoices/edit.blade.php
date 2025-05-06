@@ -347,10 +347,8 @@
               </div>
               @endif
 
-              <hr class="my-3 mx-n4" />
-
               {{-- Formulations --}}
-              @if (count($item->invoice_formulations))
+              {{-- @if (count($item->invoice_formulations))
               <div class="source-item">
                 <h3 class="mb-0 font-bold">{{ __('messages.Formulations') }}</h3>
                 <div class="mb-3" data-repeater-list="formulations">
@@ -493,7 +491,7 @@
                 </div>
               </div>
 
-              @endif
+              @endif --}}
 
               <hr class="my-3 mx-n4" />
 

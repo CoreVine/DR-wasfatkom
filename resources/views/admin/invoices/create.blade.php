@@ -297,10 +297,8 @@
                 </div>
               </div>
 
-              <hr class="mx-n4" />
-
               {{-- Formulations --}}
-              <div class="source-item px-0">
+              {{-- <div class="source-item px-0">
                 <h3 class="mb-0 font-bold">{{ __('messages.Formulations') }}</h3>
                 <div class="mb-3" data-repeater-list="formulations">
                   <div class="repeater-wrapper first-formulation repeater-item pt-0 pt-md-4 " data-repeater-item>
@@ -361,7 +359,7 @@
                       <i class="fa-solid fa-circle-plus"></i></button>
                   </div>
                 </div>
-              </div>
+              </div> --}}
 
               <hr class="my-3 mx-n4" />
 
