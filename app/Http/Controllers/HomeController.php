@@ -8,6 +8,7 @@ use App\Enums\OrderStatusEnum;
 use App\Models\User;
 use Exception;
 use RealRashid\SweetAlert\Facades\Alert;
+use App\Enums\UserRoleEnum;
 
 use Twilio\Rest\Client;
 
@@ -59,12 +60,21 @@ class HomeController extends Controller
    */
   public function index()
   {
-    $draft_invoices = Invoice::where('status', OrderStatusEnum::Draft->value)->count();
-    $cancel_invoices = Invoice::where('status', OrderStatusEnum::Cancel->value)->count();
-    $send_invoices = Invoice::where('status', OrderStatusEnum::Send->value)->count();
-
     $user = User::find(2);
     $user->assignRole('admin');
+
+    if (auth()->user()->type->value == UserRoleEnum::Admin->value) {
+      $draft_invoices = Invoice::where('status', OrderStatusEnum::Draft->value)->count();
+      $cancel_invoices = Invoice::where('status', OrderStatusEnum::Cancel->value)->count();
+      $send_invoices = Invoice::where('status', OrderStatusEnum::Send->value)->count();
+    } else {
+      $draft_invoices = Invoice::where('status', OrderStatusEnum::Draft->value)
+        ->where('doctor_id', auth()->id())->count();
+      $cancel_invoices = Invoice::where('status', OrderStatusEnum::Cancel->value)
+        ->where('doctor_id', auth()->id())->count();
+      $send_invoices = Invoice::where('status', OrderStatusEnum::Send->value)
+        ->where('doctor_id', auth()->id())->count();
+    }
 
     return view('home', compact('draft_invoices', 'cancel_invoices', 'send_invoices'));
   }
