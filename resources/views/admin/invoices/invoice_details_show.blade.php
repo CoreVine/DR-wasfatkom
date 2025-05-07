@@ -222,7 +222,7 @@
                 @endif
                 @endcan
 
-                @if ($item->reviewer && $item->status == \App\Enums\OrderStatusEnum::Done->value)
+                @if ($item->reviewer && $item->status == \App\Enums\OrderStatusEnum::Review->value)
                 <div class="d-flex justify-content-end mb-3">
                     <div class="col-10">
                         <form action="{{ route('admin.invoices.send_invoice' , $item->id) }}" method="POST">
