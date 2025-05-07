@@ -201,33 +201,45 @@ class InvoiceController extends Controller
     $doctors = User::where("type", UserRoleEnum::Doctor->value)->select("id", "name", "email")->get();
     $reviewers = User::where("type", UserRoleEnum::Admin->value)->select("id", "name", "email")->get();
 
+    // Apply client filter
     if (request('client')) {
       $data = $data->where(function ($q) {
-        $q->where("client_name", "like", "%" . request('client') . "%")->orWhere("client_mobile", "like", "%" . request('client') . "%");
+        $q->where("client_name", "like", "%" . request('client') . "%")
+          ->orWhere("client_mobile", "like", "%" . request('client') . "%");
       });
     }
 
+    // Apply other filters
     foreach (['doctor_id', 'review_id', 'status', 'invoice_num'] as $input) {
-
       if (request($input)) {
         $data = $data->where($input, request($input));
       }
     }
 
-
+    // Apply date filters
     if (request('from_date')) {
       $data = $data->whereDate("created_at", ">=", request('from_date'));
     }
-
     if (request('to_date')) {
       $data = $data->whereDate("created_at", "<=", request('to_date'));
     }
 
+    // Restrict data for non-admin users
+    $is_admin = auth()->user()->type->value == UserRoleEnum::Admin->value;
+    if (!$is_admin) {
+      $data = $data->where('doctor_id', auth()->id());
+    }
+
+    // Paginate after applying all filters
     $data = $data->paginate(config('app.paginate_number'));
 
-    $doctor_sel = User::where("type", UserRoleEnum::Doctor->value)->where("id", request('doctor_id'))->first()?->name;
-    $review_sel = User::where("type", UserRoleEnum::Admin->value)->where("id", request('doctor_id'))->first()?->name;
-
+    // Get selected doctor and reviewer names
+    $doctor_sel = User::where("type", UserRoleEnum::Doctor->value)
+      ->where("id", request('doctor_id'))
+      ->first()?->name;
+    $review_sel = User::where("type", UserRoleEnum::Admin->value)
+      ->where("id", request('review_id')) // Fixed 'doctor_id' to 'review_id'
+      ->first()?->name;
 
     return view("admin.invoices.index", compact('data', 'doctors', 'reviewers', 'doctor_sel', 'review_sel'));
   }
